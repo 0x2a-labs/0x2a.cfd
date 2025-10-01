@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAMP Wasm Planning</title>
+    <style>
+        body { font-family: system-ui, sans-serif; padding: 16px; background: #111; color: #eee; }
+        #vamp-box { border: 1px solid #2aa; border-radius: 6px; padding: 12px; background: rgba(0,0,0,0.4); }
+        #vamp-output { margin: 0; white-space: pre-wrap; color: #0ff; }
+        .error { color: #f66 !important; }
+    </style>
+    <script>
+        (function() {
+            var pre;
+            function ensure() {
+                if (!pre) pre = document.getElementById('vamp-output');
+                return pre;
+            }
+            function append(kind, args) {
+                var el = ensure();
+                if (!el) return;
+                var msg = Array.prototype.map.call(args, function(x) {
+                    if (x && typeof x === 'object') {
+                        try { return JSON.stringify(x); } catch (_) { return String(x); }
+                    }
+                    return String(x);
+                }).join(' ');
+                if (el.textContent === 'Loading...') el.textContent = '';
+                el.textContent += msg + '\n';
+                if (kind === 'error') el.classList.add('error');
+            }
+            var origLog = console.log;
+            var origErr = console.error;
+            console.log = function() { append('log', arguments); origLog.apply(console, arguments); };
+            console.error = function() { append('error', arguments); origErr.apply(console, arguments); };
+        })();
+    </script>
+</head>
+
+<body>
+    <h1>VAMP Wasm Planning</h1>
+    <div id="vamp-box">
+        <div>Output:</div>
+        <pre id="vamp-output">Loading...</pre>
+    </div>
+    <script type="module" src="./wasm_planning.js"></script>
+</body>
+
+</html>
+
